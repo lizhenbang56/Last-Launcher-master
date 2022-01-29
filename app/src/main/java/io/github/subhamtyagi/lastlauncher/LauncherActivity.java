@@ -46,6 +46,9 @@ import android.text.style.ForegroundColorSpan;
 import android.util.ArrayMap;
 import android.view.ContextThemeWrapper;
 import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -260,7 +263,34 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
 
     }
 
-    private void setSearchBoxListeners() {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        Toast toast = Toast.makeText(getApplicationContext(), "菜单键无效", Toast.LENGTH_SHORT);
+        toast.show();
+        return true;//拦截事件传递,从而屏蔽back键。
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK) { //监控/拦截/屏蔽返回键
+            Toast toast = Toast.makeText(getApplicationContext(), "返回键无效", Toast.LENGTH_SHORT);
+            toast.show();
+            return true;
+        } else if(keyCode == KeyEvent.KEYCODE_MENU) {
+            Toast toast = Toast.makeText(getApplicationContext(), "菜单键无效", Toast.LENGTH_SHORT);
+            toast.show();
+            return true;
+            //监控/拦截菜单键
+        } else if(keyCode == KeyEvent.KEYCODE_HOME) {
+            //由于Home键为系统键，此处不能捕获，需要重写onAttachedToWindow()
+            Toast toast = Toast.makeText(getApplicationContext(), "home键无效", Toast.LENGTH_SHORT);
+            toast.show();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+        private void setSearchBoxListeners() {
         mSearchBox.addTextChangedListener(mTextWatcher);
         mSearchBox.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -351,7 +381,7 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
         for (ResolveInfo resolveInfo : activities) {
 
             packageName = resolveInfo.activityInfo.packageName;
-            if (!packageName.equals("com.tencent.mm")){
+            if (!packageName.equals("com.tencent.mm") && !packageName.equals("bin.mt.plus")){
                 continue;
             }
             // activity name as com.example/com.example.MainActivity
@@ -1230,20 +1260,20 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
 
     @Override
     public void onSwipe(Gestures.Direction direction) {
-        if (direction == Gestures.Direction.SWIPE_RIGHT) {
-            searching = true;
-            mSearchBox.setText("");
-            mSearchBox.setVisibility(View.VISIBLE);
-            mSearchBox.requestFocus();
-            imm.showSoftInput(mSearchBox, InputMethodManager.SHOW_IMPLICIT);
-        } else if (direction == Gestures.Direction.SWIPE_LEFT) {
-            if (searching) {
-                mSearchBox.setVisibility(View.GONE);
-                mSearchBox.setVisibility(View.GONE);
-                imm.hideSoftInputFromWindow(mSearchBox.getWindowToken(), 0);
-                onResume();
-            }
-        }
+//        if (direction == Gestures.Direction.SWIPE_RIGHT) {
+//            searching = true;
+//            mSearchBox.setText("");
+//            mSearchBox.setVisibility(View.VISIBLE);
+//            mSearchBox.requestFocus();
+//            imm.showSoftInput(mSearchBox, InputMethodManager.SHOW_IMPLICIT);
+//        } else if (direction == Gestures.Direction.SWIPE_LEFT) {
+//            if (searching) {
+//                mSearchBox.setVisibility(View.GONE);
+//                mSearchBox.setVisibility(View.GONE);
+//                imm.hideSoftInputFromWindow(mSearchBox.getWindowToken(), 0);
+//                onResume();
+//            }
+//        }
     }
 
     @Override

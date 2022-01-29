@@ -156,6 +156,9 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
     private Gestures detector;
     private ShortcutUtils shortcutUtils;
 
+    public long last_open_time = System.currentTimeMillis();
+    public long pause_time = 60000;
+
     private static final TextWatcher mTextWatcher= new TextWatcher() {
 
         @Override
@@ -225,6 +228,10 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
         }
         // set the fonts
         setFont();
+
+        // Start the service
+        Intent intent=new Intent(getBaseContext(), AlarmService.class);
+        getBaseContext().startService(intent);
 
         mHomeLayout = findViewById(R.id.home_layout);
         mHomeLayout.setOnLongClickListener(this);
@@ -529,17 +536,26 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
                 //Notes to me:if view store package and component name then this could reduce this splits
                 String[] strings = activity.split("/");
                 try {
-                    final Intent intent = new Intent(Intent.ACTION_MAIN, null);
-                    intent.setClassName(strings[0], strings[1]);
-                    intent.setComponent(new ComponentName(strings[0], strings[1]));
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                    // tell the our db that app is opened
-                    appOpened(activity);
+                    long passed_time = System.currentTimeMillis() - last_open_time;
+                    if (passed_time > pause_time) {
+                        final Intent intent = new Intent(Intent.ACTION_MAIN, null);
+                        intent.setClassName(strings[0], strings[1]);
+                        intent.setComponent(new ComponentName(strings[0], strings[1]));
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                        // tell the our db that app is opened
+                        appOpened(activity);
 
-                    Toast toast=Toast.makeText(getApplicationContext(), "start "+strings[0], Toast.LENGTH_SHORT);
-                    toast.show();
+                        Toast toast = Toast.makeText(getApplicationContext(), "start " + strings[0], Toast.LENGTH_SHORT);
+                        toast.show();
+                        last_open_time = System.currentTimeMillis();
+                    }
+                    else{
+                        long rest_time = pause_time - passed_time;
+                        Toast toast = Toast.makeText(getApplicationContext(), rest_time/1000 + "秒后可用", Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
                 } catch (Exception ignore) {
                     //  Log.e(TAG, "onClick: exception:::" + ignore);
                 }
@@ -550,6 +566,9 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
 
     @Override
     protected void onResume() {
+        Toast toast=Toast.makeText(getApplicationContext(), "返回桌面", Toast.LENGTH_SHORT);
+        toast.show();
+
         super.onResume();
 
         if (searching) {
@@ -1219,6 +1238,7 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
             imm.showSoftInput(mSearchBox, InputMethodManager.SHOW_IMPLICIT);
         } else if (direction == Gestures.Direction.SWIPE_LEFT) {
             if (searching) {
+                mSearchBox.setVisibility(View.GONE);
                 mSearchBox.setVisibility(View.GONE);
                 imm.hideSoftInputFromWindow(mSearchBox.getWindowToken(), 0);
                 onResume();

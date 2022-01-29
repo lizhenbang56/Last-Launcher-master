@@ -537,6 +537,9 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
                     overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                     // tell the our db that app is opened
                     appOpened(activity);
+
+                    Toast toast=Toast.makeText(getApplicationContext(), "start "+strings[0], Toast.LENGTH_SHORT);
+                    toast.show();
                 } catch (Exception ignore) {
                     //  Log.e(TAG, "onClick: exception:::" + ignore);
                 }

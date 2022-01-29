@@ -344,6 +344,9 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
         for (ResolveInfo resolveInfo : activities) {
 
             packageName = resolveInfo.activityInfo.packageName;
+            if (!packageName.equals("com.tencent.mm")){
+                continue;
+            }
             // activity name as com.example/com.example.MainActivity
             String activity = packageName + "/" + resolveInfo.activityInfo.name;
             /// save the app original name so that we can use this later e.g if user change

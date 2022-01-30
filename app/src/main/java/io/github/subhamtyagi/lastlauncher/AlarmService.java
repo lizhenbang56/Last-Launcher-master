@@ -85,7 +85,7 @@ public class AlarmService extends Service {
 
         //通过AlarmManager定时启动广播
         AlarmManager alarmManager= (AlarmManager) getSystemService(ALARM_SERVICE);
-        long triggerAtTime= SystemClock.elapsedRealtime() + 10000;
+        long triggerAtTime= SystemClock.elapsedRealtime() + 20000;
         //SystemClock.elapsedRealtime()：从开机到现在的毫秒书（手机睡眠(sleep)的时间也包括在内
 
         Intent i=new Intent(this, AlarmReceive.class);

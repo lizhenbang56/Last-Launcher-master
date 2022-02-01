@@ -160,7 +160,7 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
     private ShortcutUtils shortcutUtils;
 
     public long last_open_time = System.currentTimeMillis();
-    public long pause_time = 60000;
+    public long pause_time = 2 * 60 * 1000;  // 等待多长时间后，才能继续使用软件。
 
     private static final TextWatcher mTextWatcher= new TextWatcher() {
 
@@ -599,9 +599,6 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
 
     @Override
     protected void onResume() {
-        Toast toast=Toast.makeText(getApplicationContext(), "返回桌面", Toast.LENGTH_SHORT);
-        toast.show();
-
         super.onResume();
 
         if (searching) {

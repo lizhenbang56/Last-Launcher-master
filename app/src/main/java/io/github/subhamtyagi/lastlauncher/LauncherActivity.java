@@ -381,7 +381,10 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
         for (ResolveInfo resolveInfo : activities) {
 
             packageName = resolveInfo.activityInfo.packageName;
-            if (!packageName.equals("com.tencent.mm") && !packageName.equals("com.leoao.fitness")){
+            if (!packageName.equals("com.tencent.mm") &&
+                !packageName.equals("com.leoao.fitness") &&
+                !packageName.equals("com.android.contacts") &&
+                !packageName.equals("com.android.mms")){
                 continue;
             }
             // activity name as com.example/com.example.MainActivity

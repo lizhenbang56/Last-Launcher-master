@@ -21,7 +21,9 @@ package io.github.subhamtyagi.lastlauncher;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -39,6 +41,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
+import android.os.SystemClock;
 import android.text.Editable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
@@ -263,33 +266,6 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
 
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        Toast toast = Toast.makeText(getApplicationContext(), "菜单键无效", Toast.LENGTH_SHORT);
-        toast.show();
-        return true;//拦截事件传递,从而屏蔽back键。
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode == KeyEvent.KEYCODE_BACK) { //监控/拦截/屏蔽返回键
-            Toast toast = Toast.makeText(getApplicationContext(), "返回键无效", Toast.LENGTH_SHORT);
-            toast.show();
-            return true;
-        } else if(keyCode == KeyEvent.KEYCODE_MENU) {
-            Toast toast = Toast.makeText(getApplicationContext(), "菜单键无效", Toast.LENGTH_SHORT);
-            toast.show();
-            return true;
-            //监控/拦截菜单键
-        } else if(keyCode == KeyEvent.KEYCODE_HOME) {
-            //由于Home键为系统键，此处不能捕获，需要重写onAttachedToWindow()
-            Toast toast = Toast.makeText(getApplicationContext(), "home键无效", Toast.LENGTH_SHORT);
-            toast.show();
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
         private void setSearchBoxListeners() {
         mSearchBox.addTextChangedListener(mTextWatcher);
         mSearchBox.setOnEditorActionListener((v, actionId, event) -> {
@@ -384,6 +360,7 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
             if (!packageName.equals("com.tencent.mm") &&
                 !packageName.equals("com.leoao.fitness") &&
                 !packageName.equals("com.android.contacts") &&
+                !packageName.equals("com.MobileTicket") &&
                 !packageName.equals("com.android.mms")){
                 continue;
             }
@@ -541,6 +518,8 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
 
     // app text is clicked
     // so launch the app
+    private static final long loop_time = 60 * 1000;  // 60 * 1000
+    private static final int PENDING_REQUEST=0;
     @Override
     public void onClick(View view) {
         if (view instanceof AppTextView) {
@@ -571,6 +550,13 @@ public class LauncherActivity extends Activity implements View.OnClickListener,
                 try {
                     long passed_time = System.currentTimeMillis() - last_open_time;
                     if (passed_time > pause_time) {
+                        // 闹钟重新计时
+                        AlarmManager alarmManager= (AlarmManager) getSystemService(ALARM_SERVICE);
+                        long triggerAtTime= SystemClock.elapsedRealtime() + loop_time;
+                        Intent i=new Intent(this, AlarmReceive.class);
+                        @SuppressLint({"WrongConstant", "UnspecifiedImmutableFlag"}) PendingIntent pIntent=PendingIntent.getBroadcast(this,PENDING_REQUEST,i,PENDING_REQUEST);
+                        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,triggerAtTime,pIntent);
+
                         final Intent intent = new Intent(Intent.ACTION_MAIN, null);
                         intent.setClassName(strings[0], strings[1]);
                         intent.setComponent(new ComponentName(strings[0], strings[1]));

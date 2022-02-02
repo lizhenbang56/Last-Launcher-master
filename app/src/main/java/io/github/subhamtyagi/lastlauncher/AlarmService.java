@@ -11,7 +11,7 @@ import android.widget.Toast;
 
 public class AlarmService extends Service {
     private static final int PENDING_REQUEST=0;
-    private static final long loop_time = 40 * 1000;
+    private static final long loop_time = 60 * 1000;  // 60 * 1000
     public AlarmService() {}
 
     public void backToDesktop() {
